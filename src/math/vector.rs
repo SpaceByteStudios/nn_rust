@@ -4,17 +4,28 @@ pub struct Vector {
 }
 
 impl Vector {
-    fn new(data: Vec<f64>) -> Self {
+    pub fn new(data: Vec<f64>) -> Self {
         Self { data }
     }
 
-    fn zeros(size: usize) -> Self {
+    pub fn zeros(size: usize) -> Self {
         Self {
             data: vec![0.0; size],
         }
     }
 
-    fn dot(&self, other: &Self) -> f64 {
+    pub fn vecadd(&self, other: &Self) -> Self {
+        let result: Vec<f64> = self
+            .data
+            .iter()
+            .zip(other.data.iter())
+            .map(|(a, b)| a + b)
+            .collect();
+
+        Vector { data: result }
+    }
+
+    pub fn dot(&self, other: &Self) -> f64 {
         self.data
             .iter()
             .zip(other.data.iter())

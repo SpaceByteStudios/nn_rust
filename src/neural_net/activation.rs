@@ -1,3 +1,7 @@
+pub fn linear(x: f64) -> f64 {
+    x
+}
+
 pub fn relu(x: f64) -> f64 {
     if x > 0.0 { x } else { 0.0 }
 }

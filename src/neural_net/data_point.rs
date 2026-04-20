@@ -2,12 +2,12 @@ use crate::math::vector::Vector;
 
 #[derive(Debug)]
 pub struct DataPoint {
-    input: Vector,
-    exp_output: Vector,
+    pub input: Vector,
+    pub exp_output: Vector,
 }
 
 impl DataPoint {
-    fn new(input: Vector, exp_output: Vector) -> Self {
+    pub fn new(input: Vector, exp_output: Vector) -> Self {
         Self { input, exp_output }
     }
 }

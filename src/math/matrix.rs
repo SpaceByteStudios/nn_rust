@@ -8,12 +8,12 @@ pub struct Matrix {
 }
 
 impl Matrix {
-    fn new(rows: usize, cols: usize, data: Vec<f64>) -> Self {
+    pub fn new(rows: usize, cols: usize, data: Vec<f64>) -> Self {
         assert_eq!(rows * cols, data.len());
         Self { rows, cols, data }
     }
 
-    fn zeros(rows: usize, cols: usize) -> Self {
+    pub fn zeros(rows: usize, cols: usize) -> Self {
         Self {
             rows,
             cols,
@@ -21,18 +21,19 @@ impl Matrix {
         }
     }
 
-    fn get(&self, r: usize, c: usize) -> f64 {
+    pub fn get(&self, r: usize, c: usize) -> f64 {
         self.data[r * self.cols + c]
     }
 
-    fn set(&mut self, r: usize, c: usize, value: f64) {
+    pub fn set(&mut self, r: usize, c: usize, value: f64) {
         self.data[r * self.cols + c] = value;
     }
 
-    fn mul_vector(&self, v: &Vector) -> Vector {
-        assert_eq!(self.cols, v.data.len());
+    pub fn mul_vector(&self, v: &Vector) -> Vector {
+        // 1. Validierung: Die Spaltenanzahl der Matrix muss der Länge des Vektors entsprechen
+        assert_eq!(self.cols, v.data.len(),);
 
-        let result = (0..self.rows)
+        let result: Vec<f64> = (0..self.rows)
             .map(|i| {
                 (0..self.cols)
                     .map(|j| self.data[i * self.cols + j] * v.data[j])
@@ -43,7 +44,7 @@ impl Matrix {
         Vector { data: result }
     }
 
-    fn matmul(&self, other: &Self) -> Self {
+    pub fn matmul(&self, other: &Self) -> Self {
         assert_eq!(self.cols, other.rows);
 
         let mut result = Matrix::zeros(self.rows, other.cols);
