@@ -4,9 +4,9 @@ use crate::{
 };
 
 #[derive(Debug)]
-struct Network {
-    layers: Vec<Layer>,
-    act_func: fn(f64) -> f64,
+pub struct Network {
+    pub layers: Vec<Layer>,
+    pub act_func: fn(f64) -> f64,
 }
 
 impl Network {
@@ -27,10 +27,16 @@ impl Network {
         Self { layers, act_func }
     }
 
-    pub fn calc_network(&self, input: Vector) -> Vector {
-        assert_eq!(self.layers[0].size, input.data.len());
+    pub fn calc_network(&self, input: &Vector) -> Vector {
+        assert_eq!(self.layers[0].weights.cols, input.data.len());
 
-        let output: Vector = input;
+        let mut result: Vector = input.clone();
+
+        for layer in &self.layers {
+            result = layer.calc_layer(&result);
+        }
+
+        let output: Vector = result;
 
         return output;
     }

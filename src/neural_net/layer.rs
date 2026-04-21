@@ -1,4 +1,7 @@
-use crate::math::{matrix::Matrix, vector::Vector};
+use crate::{
+    math::{matrix::Matrix, vector::Vector},
+    neural_net::activation,
+};
 use rand::random;
 
 #[derive(Debug)]
@@ -6,7 +9,7 @@ pub struct Layer {
     pub size: usize,
     pub weights: Matrix,
     pub bias: Vector,
-    pub activation: fn(f64) -> f64,
+    pub act_func: fn(f64) -> f64,
 }
 
 impl Layer {
@@ -21,7 +24,20 @@ impl Layer {
             size,
             weights,
             bias,
-            activation: act_func,
+            act_func,
         }
+    }
+
+    pub fn calc_layer(&self, input: &Vector) -> Vector {
+        assert_eq!(self.weights.cols, input.data.len());
+
+        let mut out: Vector = self.weights.mul_vector(&input);
+        out = out.vecadd(&self.bias);
+
+        for o in &mut out.data {
+            *o = (self.act_func)(*o);
+        }
+
+        return out;
     }
 }

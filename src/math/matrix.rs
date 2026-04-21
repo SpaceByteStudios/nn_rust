@@ -1,10 +1,10 @@
 use crate::math::vector::Vector;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Matrix {
-    rows: usize,
-    cols: usize,
-    data: Vec<f64>,
+    pub rows: usize,
+    pub cols: usize,
+    pub data: Vec<f64>,
 }
 
 impl Matrix {
