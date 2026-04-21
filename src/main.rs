@@ -17,7 +17,7 @@ mod neural_net;
 
 fn main() {
     //Specify Training Data
-    let train_data: Vec<DataPoint> = generate_data(10000);
+    let train_data: Vec<DataPoint> = generate_data(1000);
 
     //Specify Test Data
     let test_data: Vec<DataPoint> = generate_data(1000);
@@ -29,7 +29,7 @@ fn main() {
     let act_func: fn(f64) -> f64 = relu;
 
     //Create Neural Network
-    let network: Network = Network::new(layers_sizes, act_func);
+    let mut network: Network = Network::new(layers_sizes, act_func);
 
     //Test Calculation
     for i in 0..1 {
@@ -40,15 +40,15 @@ fn main() {
         println!("Output: {:#?}", test_out);
     }
 
-    for (i, layer) in network.layers.iter().enumerate() {
-        println!("Layer {}:", i + 1);
-        println!("Weights: {:#?}", layer.weights);
-        println!("Biases: {:#?}", layer.bias);
+    for i in 0..5 {
+        //Train Neural Network
+        let train_score: i32 = network.train_network(&train_data, 1);
+
+        //Test Neural Network
+        let test_score: i32 = network.test_network(&test_data);
+
+        //Plot Neural Network output
     }
-
-    //Train Neural Network
-
-    //Test Neural Network
 }
 
 fn generate_data(amount: i32) -> Vec<DataPoint> {

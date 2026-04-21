@@ -1,6 +1,9 @@
 use crate::{
     math::vector::Vector,
-    neural_net::layer::{self, Layer},
+    neural_net::{
+        data_point::DataPoint,
+        layer::{self, Layer},
+    },
 };
 
 #[derive(Debug)]
@@ -41,5 +44,43 @@ impl Network {
         return output;
     }
 
-    pub fn train_network() {}
+    pub fn calc_cost(prediction: Vector, expected_out: Vector) -> f64 {
+        assert_eq!(prediction.data.len(), expected_out.data.len());
+
+        let mut cost: f64 = 0.0;
+
+        for i in 0..prediction.data.len() {
+            let pre_value: f64 = prediction.data[i];
+            let exp_value: f64 = expected_out.data[i];
+            cost +=
+                -1.0 * (exp_value * pre_value.ln() + (1.0 - exp_value) * (1.0 - pre_value).ln());
+        }
+
+        cost /= prediction.data.len() as f64;
+
+        return cost;
+    }
+
+    pub fn train_network(&mut self, train_data: &Vec<DataPoint>, num_epochs: i32) -> i32 {
+        let mut train_score: i32 = 0;
+
+        for e in 0..num_epochs {
+            for data in train_data {
+                //Forward Propagation
+                let prediction: Vector = self.calc_network(&data.input);
+
+                //Calculate cost
+
+                //Backwards Propagation
+                //Update Parameters
+                //Repeat
+            }
+        }
+
+        return train_score;
+    }
+
+    pub fn test_network(&mut self, test_data: &Vec<DataPoint>) -> i32 {
+        return 0;
+    }
 }
