@@ -10,7 +10,7 @@ use crate::{
         network::Network,
     },
 };
-use rand::random;
+use rand::{random, seq::SliceRandom};
 
 mod math;
 mod neural_net;
@@ -33,11 +33,18 @@ fn main() {
 
     //Test Calculation
     for i in 0..1 {
-        let input: Vector = Vector::new(vec![random(), random()]);
-        let test_out: Vector = network.calc_network(&input);
+        //let input: Vector = Vector::new(vec![random(), random()]);
+        let data: Vec<DataPoint> = generate_data(1);
+        let test_out: Vector = network.calc_network(&data[0].input);
 
-        println!("Input: {:#?}", input);
+        println!("Input: {:#?}", data[0].input);
         println!("Output: {:#?}", test_out);
+
+        println!("Expected Output: {:#?}", &data[0].exp_output);
+        println!(
+            "Cost: {}",
+            network.calc_cost(&test_out, &data[0].exp_output)
+        )
     }
 
     for i in 0..5 {
@@ -64,6 +71,9 @@ fn generate_data(amount: i32) -> Vec<DataPoint> {
 
         data.push(DataPoint { input, exp_output });
     }
+
+    let mut rng = rand::rng();
+    data.shuffle(&mut rng);
 
     return data;
 }

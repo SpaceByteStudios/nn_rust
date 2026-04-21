@@ -44,7 +44,7 @@ impl Network {
         return output;
     }
 
-    pub fn calc_cost(prediction: Vector, expected_out: Vector) -> f64 {
+    pub fn calc_cost(&self, prediction: &Vector, expected_out: &Vector) -> f64 {
         assert_eq!(prediction.data.len(), expected_out.data.len());
 
         let mut cost: f64 = 0.0;
@@ -52,8 +52,7 @@ impl Network {
         for i in 0..prediction.data.len() {
             let pre_value: f64 = prediction.data[i];
             let exp_value: f64 = expected_out.data[i];
-            cost +=
-                -1.0 * (exp_value * pre_value.ln() + (1.0 - exp_value) * (1.0 - pre_value).ln());
+            cost += (pre_value - exp_value).powi(2);
         }
 
         cost /= prediction.data.len() as f64;
@@ -70,8 +69,10 @@ impl Network {
                 let prediction: Vector = self.calc_network(&data.input);
 
                 //Calculate cost
+                let cost: f64 = self.calc_cost(&prediction, &data.exp_output);
 
                 //Backwards Propagation
+
                 //Update Parameters
                 //Repeat
             }

@@ -1,6 +1,6 @@
 use crate::math::vector::Vector;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DataPoint {
     pub input: Vector,
     pub exp_output: Vector,
