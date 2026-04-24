@@ -5,7 +5,7 @@
 use crate::{
     math::vector::Vector,
     neural_net::{
-        activation::{linear, relu, sigmoid, tanh},
+        activation::{der_relu, linear, relu, sigmoid, tanh},
         data_point::DataPoint,
         network::Network,
     },
@@ -17,19 +17,20 @@ mod neural_net;
 
 fn main() {
     //Specify Training Data
-    let train_data: Vec<DataPoint> = generate_data(1000);
+    let train_data: Vec<DataPoint> = generate_data(1024);
 
     //Specify Test Data
-    let test_data: Vec<DataPoint> = generate_data(1000);
+    let test_data: Vec<DataPoint> = generate_data(128);
 
     //Specify Layer Sizes
-    let layers_sizes: Vec<usize> = vec![2, 2, 1];
+    let layers_sizes: Vec<usize> = vec![2, 1, 1];
 
     //Specify Activation Function
     let act_func: fn(f64) -> f64 = relu;
+    let der_act_func: fn(f64) -> f64 = der_relu;
 
     //Create Neural Network
-    let mut network: Network = Network::new(layers_sizes, act_func);
+    let mut network: Network = Network::new(layers_sizes, act_func, der_act_func);
 
     //Test Calculation
     for i in 0..1 {
