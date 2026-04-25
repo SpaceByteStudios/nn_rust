@@ -17,13 +17,13 @@ mod neural_net;
 
 fn main() {
     //Specify Training Data
-    let train_data: Vec<DataPoint> = generate_data(1024);
+    let train_data: Vec<DataPoint> = generate_data(256);
 
     //Specify Test Data
-    let test_data: Vec<DataPoint> = generate_data(128);
+    let test_data: Vec<DataPoint> = generate_data(32);
 
     //Specify Layer Sizes
-    let layers_sizes: Vec<usize> = vec![2, 1, 1];
+    let layers_sizes: Vec<usize> = vec![1, 1, 1];
 
     //Specify Activation Function
     let act_func: fn(f64) -> f64 = relu;
@@ -50,10 +50,10 @@ fn main() {
 
     for i in 0..5 {
         //Train Neural Network
-        let train_score: i32 = network.train_network(&train_data, 1);
+        let train_score: Vec<f64> = network.train_network(&train_data, 1);
 
         //Test Neural Network
-        let test_score: i32 = network.test_network(&test_data);
+        let test_score: f64 = network.test_network(&test_data);
 
         //Plot Neural Network output
     }
@@ -64,10 +64,12 @@ fn generate_data(amount: i32) -> Vec<DataPoint> {
 
     for i in 0..amount {
         let num1: f64 = rand::random();
-        let num2: f64 = rand::random();
-        let out: f64 = 2.0 * num1 + 3.0 * num2;
+        //let num2: f64 = rand::random();
+        //let out: f64 = 2.0 * num1 + 3.0 * num2;
+        let out: f64 = 2.0 * num1;
 
-        let input: Vector = Vector::new(vec![num1, num2]);
+        //let input: Vector = Vector::new(vec![num1, num2]);
+        let input: Vector = Vector::new(vec![num1]);
         let exp_output: Vector = Vector::new(vec![out]);
 
         data.push(DataPoint { input, exp_output });

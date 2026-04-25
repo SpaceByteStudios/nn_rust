@@ -27,7 +27,7 @@ impl Network {
             let size: usize = layers_sizes[i];
             let prev_size: usize = layers_sizes[i - 1];
 
-            let layer: Layer = Layer::new(size, prev_size, act_func);
+            let layer: Layer = Layer::new(size, prev_size, act_func, der_act_func);
 
             layers.push(layer);
         }
@@ -39,12 +39,12 @@ impl Network {
         }
     }
 
-    pub fn calc_network(&self, input: &Vector) -> Vector {
+    pub fn calc_network(&mut self, input: &Vector) -> Vector {
         assert_eq!(self.layers[0].weights.cols, input.data.len());
 
         let mut result: Vector = input.clone();
 
-        for layer in &self.layers {
+        for layer in &mut self.layers {
             result = layer.calc_layer(&result);
         }
 
@@ -69,28 +69,33 @@ impl Network {
         return cost;
     }
 
-    pub fn train_network(&mut self, train_data: &Vec<DataPoint>, num_epochs: i32) -> i32 {
-        let mut train_score: i32 = 0;
+    pub fn back_prop(&mut self) {}
+
+    pub fn train_network(&mut self, train_data: &Vec<DataPoint>, num_epochs: usize) -> Vec<f64> {
+        let mut cost_history: Vec<f64> = vec![];
 
         for e in 0..num_epochs {
+            cost_history.push(0.0);
+
             for data in train_data {
                 //Forward Propagation
                 let prediction: Vector = self.calc_network(&data.input);
 
                 //Calculate cost
-                let cost: f64 = self.calc_cost(&prediction, &data.exp_output);
+                cost_history[e] += self.calc_cost(&prediction, &data.exp_output);
 
                 //Backwards Propagation
-
-                //Update Parameters
-                //Repeat
             }
+
+            cost_history[e] /= train_data.len() as f64;
+
+            //Update Parameters
         }
 
-        return train_score;
+        return cost_history;
     }
 
-    pub fn test_network(&mut self, test_data: &Vec<DataPoint>) -> i32 {
-        return 0;
+    pub fn test_network(&mut self, test_data: &Vec<DataPoint>) -> f64 {
+        return 0.0;
     }
 }

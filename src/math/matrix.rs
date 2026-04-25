@@ -29,8 +29,19 @@ impl Matrix {
         self.data[r * self.cols + c] = value;
     }
 
+    pub fn transpose(&self) -> Self {
+        let mut result = Matrix::zeros(self.cols, self.rows);
+
+        for i in 0..self.rows {
+            for j in 0..self.cols {
+                result.set(j, i, self.get(i, j));
+            }
+        }
+
+        result
+    }
+
     pub fn mul_vector(&self, v: &Vector) -> Vector {
-        // 1. Validierung: Die Spaltenanzahl der Matrix muss der Länge des Vektors entsprechen
         assert_eq!(self.cols, v.data.len(),);
 
         let result: Vec<f64> = (0..self.rows)
