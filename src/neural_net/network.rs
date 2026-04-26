@@ -3,6 +3,8 @@ use crate::{
     neural_net::{data_point::DataPoint, layer::Layer},
 };
 
+use rand::seq::SliceRandom;
+
 #[derive(Debug)]
 pub struct Network {
     pub layers: Vec<Layer>,
@@ -76,34 +78,41 @@ impl Network {
 
     pub fn train_network(
         &mut self,
-        train_data: &Vec<DataPoint>,
-        num_epochs: usize,
+        train_data: &mut [DataPoint],
+        epochs: usize,
+        batch_size: usize,
         learn_rate: f64,
     ) -> Vec<f64> {
         let mut cost_history: Vec<f64> = vec![];
 
-        for _ in 0..num_epochs {
+        for _ in 0..epochs {
             let mut e_cost: f64 = 0.0;
 
-            for data in train_data {
-                //Forward Propagation
-                let prediction: Matrix = self.calc_network(&data.input);
+            let mut rng = rand::rng();
+            train_data.shuffle(&mut rng);
 
-                //Calculate cost
-                e_cost += self.calc_cost(&prediction, &data.exp_output);
+            let batches = train_data.chunks_exact_mut(batch_size);
 
-                //Backwards Propagation
-                self.back_prop(&prediction, &data.exp_output);
+            for batch in batches {
+                for data in batch.iter() {
+                    //Forward Propagation
+                    let prediction: Matrix = self.calc_network(&data.input);
+
+                    //Calculate cost
+                    let batch_cost: f64 = self.calc_cost(&prediction, &data.exp_output);
+                    e_cost += batch_cost;
+
+                    //Backwards Propagation
+                    self.back_prop(&prediction, &data.exp_output);
+                }
+
+                //Update Parameters
+                for layer in &mut self.layers {
+                    layer.update_layer(batch_size, learn_rate);
+                }
             }
 
-            e_cost /= train_data.len() as f64;
-
-            //Update Parameters
-            for layer in &mut self.layers {
-                layer.update_layer(train_data.len(), learn_rate);
-            }
-
-            cost_history.push(e_cost);
+            cost_history.push(e_cost / train_data.len() as f64);
         }
 
         cost_history
