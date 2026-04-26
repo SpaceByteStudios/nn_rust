@@ -2,7 +2,7 @@ pub fn linear(x: f64) -> f64 {
     x
 }
 
-pub fn der_linear(x: f64) -> f64 {
+pub fn der_linear(_: f64) -> f64 {
     1.0
 }
 
@@ -19,7 +19,8 @@ pub fn sigmoid(x: f64) -> f64 {
 }
 
 pub fn der_sigmoid(x: f64) -> f64 {
-    sigmoid(x) * (1.0 - sigmoid(x))
+    let s: f64 = sigmoid(x);
+    s * (1.0 - s)
 }
 
 pub fn tanh(x: f64) -> f64 {
@@ -27,5 +28,5 @@ pub fn tanh(x: f64) -> f64 {
 }
 
 pub fn der_tanh(x: f64) -> f64 {
-    1.0 - (x.tanh()).exp2()
+    1.0 - (x.tanh()).powi(2)
 }

@@ -1,5 +1,3 @@
-use crate::math::vector::Vector;
-
 #[derive(Debug, Clone)]
 pub struct Matrix {
     pub rows: usize,
@@ -29,6 +27,18 @@ impl Matrix {
         self.data[r * self.cols + c] = value;
     }
 
+    pub fn scale(&self, scalar: f64) -> Self {
+        let mut result = Matrix::zeros(self.rows, self.cols);
+
+        for i in 0..self.rows {
+            for j in 0..self.cols {
+                result.set(i, j, self.get(i, j) * scalar);
+            }
+        }
+
+        result
+    }
+
     pub fn transpose(&self) -> Self {
         let mut result = Matrix::zeros(self.cols, self.rows);
 
@@ -41,18 +51,20 @@ impl Matrix {
         result
     }
 
-    pub fn mul_vector(&self, v: &Vector) -> Vector {
-        assert_eq!(self.cols, v.data.len(),);
+    pub fn matadd(&self, other: &Self) -> Self {
+        assert_eq!(self.cols, other.cols);
+        assert_eq!(self.rows, other.rows);
 
-        let result: Vec<f64> = (0..self.rows)
-            .map(|i| {
-                (0..self.cols)
-                    .map(|j| self.data[i * self.cols + j] * v.data[j])
-                    .sum()
-            })
-            .collect();
+        let mut result: Matrix = Matrix::zeros(self.rows, self.cols);
 
-        Vector { data: result }
+        for i in 0..self.rows {
+            for j in 0..self.cols {
+                let sum: f64 = self.get(i, j) + other.get(i, j);
+                result.set(i, j, sum);
+            }
+        }
+
+        result
     }
 
     pub fn matmul(&self, other: &Self) -> Self {
