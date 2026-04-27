@@ -1,6 +1,10 @@
 use crate::{
     math::matrix::Matrix,
-    neural_net::{data_point::DataPoint, layer::Layer},
+    neural_net::{
+        activation::{der_linear, linear},
+        data_point::DataPoint,
+        layer::{self, Layer},
+    },
 };
 
 use rand::seq::SliceRandom;
@@ -24,7 +28,13 @@ impl Network {
             let size: usize = layers_sizes[i];
             let prev_size: usize = layers_sizes[i - 1];
 
-            let layer: Layer = Layer::new(size, prev_size, act_func, der_act_func);
+            let layer: Layer;
+
+            if i == layers_sizes.len() - 1 {
+                layer = Layer::new(size, prev_size, linear, der_linear);
+            } else {
+                layer = Layer::new(size, prev_size, act_func, der_act_func);
+            }
 
             layers.push(layer);
         }
