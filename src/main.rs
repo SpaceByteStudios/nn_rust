@@ -13,7 +13,7 @@ use crate::{
     },
 };
 use rand::seq::SliceRandom;
-use std::time::Instant;
+use std::{f64::consts::PI, time::Instant};
 
 use plotters::prelude::*;
 
@@ -60,17 +60,17 @@ fn main() {
 
     let mut predictions: Vec<DataPoint> = vec![];
 
-    for data in train_data {
+    for data in &train_data {
         let out = network.calc_network(&data.input);
-        let data_point: DataPoint = DataPoint {
-            input: data.input,
+        let pred_point: DataPoint = DataPoint {
+            input: data.input.clone(),
             exp_output: out,
         };
 
-        predictions.push(data_point);
+        predictions.push(pred_point);
     }
 
-    let _ = plot_2d_graph(&predictions);
+    let _ = plot_2d_graph(&train_data, &predictions);
 }
 
 fn generate_data(amount: i32) -> Vec<DataPoint> {
@@ -79,9 +79,9 @@ fn generate_data(amount: i32) -> Vec<DataPoint> {
     for _ in 0..amount {
         let mut a: f64 = rand::random();
 
-        a = (a - 0.5) * 2.0;
+        a = (a - 0.5) * PI * 2.0;
 
-        let out: f64 = a * a * a;
+        let out: f64 = a.sin();
 
         let input: Matrix = Matrix::new(1, 1, vec![a]);
         let exp_output: Matrix = Matrix::new(1, 1, vec![out]);
@@ -152,7 +152,10 @@ fn plot_performance(performance: Vec<f64>) -> Result<(), Box<dyn std::error::Err
     Ok(())
 }
 
-fn plot_2d_graph(predictions: &Vec<DataPoint>) -> Result<(), Box<dyn std::error::Error>> {
+fn plot_2d_graph(
+    train_data: &Vec<DataPoint>,
+    predictions: &Vec<DataPoint>,
+) -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new("graph.png", (800, 800)).into_drawing_area();
     root.fill(&WHITE)?;
 
@@ -161,9 +164,15 @@ fn plot_2d_graph(predictions: &Vec<DataPoint>) -> Result<(), Box<dyn std::error:
         .margin(30)
         .x_label_area_size(40)
         .y_label_area_size(40)
-        .build_cartesian_2d(-1.0..1.0, -1.0..1.0)?;
+        .build_cartesian_2d(-PI..PI, -1.0..1.0)?;
 
     chart.configure_mesh().draw()?;
+
+    chart.draw_series(
+        train_data
+            .iter()
+            .map(|x| Circle::new((x.input.data[0], x.exp_output.data[0]), 5, BLUE.filled())),
+    )?;
 
     chart.draw_series(
         predictions
