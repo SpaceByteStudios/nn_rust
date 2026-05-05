@@ -22,11 +22,11 @@ mod neural_net;
 
 fn main() {
     //Specify Training & Test Data
-    let mut train_data: Vec<DataPoint> = generate_data(128);
-    let test_data: Vec<DataPoint> = generate_data(16);
+    let mut train_data: Vec<DataPoint> = xor_dataset();
+    let test_data: Vec<DataPoint> = xor_dataset();
 
     //Specify Layer Sizes
-    let layers_sizes: Vec<usize> = vec![1, 10, 1];
+    let layers_sizes: Vec<usize> = vec![2, 10, 1];
 
     //Specify Activation Function
     let act_func: fn(f64) -> f64 = tanh;
@@ -41,9 +41,9 @@ fn main() {
     let start: Instant = Instant::now();
     let mut performance: Vec<f64> = vec![];
 
-    for _ in 0..10 {
+    for _ in 0..25 {
         //Train Neural Network
-        let mut train_score: Vec<f64> = network.train_network(&mut train_data, 250, 8, 0.01);
+        let mut train_score: Vec<f64> = network.train_network(&mut train_data, 50, 1, 0.01);
         performance.append(&mut train_score);
 
         //Test Neural Network
@@ -119,7 +119,7 @@ fn xor_dataset() -> Vec<DataPoint> {
 }
 
 fn plot_performance(performance: Vec<f64>) -> Result<(), Box<dyn std::error::Error>> {
-    let root = BitMapBackend::new("output.png", (800, 600)).into_drawing_area();
+    let root = BitMapBackend::new("output.png", (800, 800)).into_drawing_area();
     root.fill(&WHITE)?;
 
     let y_min: f64 = performance.iter().cloned().fold(f64::INFINITY, f64::min);
@@ -166,7 +166,7 @@ fn plot_2d_graph(
         .y_label_area_size(40)
         .build_cartesian_2d(-PI..PI, -1.0..1.0)?;
 
-    chart.configure_mesh().draw()?;
+    chart.configure_mesh().x_desc("x").y_desc("y").draw()?;
 
     chart.draw_series(
         train_data
