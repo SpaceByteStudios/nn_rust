@@ -1,39 +1,26 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
-use crate::{
-    math::matrix::Matrix,
-    neural_net::{
-        activation::{
-            der_leaky_relu, der_linear, der_relu, der_sigmoid, der_tanh, leaky_relu, linear, relu,
-            sigmoid, tanh,
-        },
-        data_point::{self, DataPoint},
-        network::Network,
-    },
+use nn_rust::neural_net::{
+    activation::Activation, data_point::DataPoint, matrix::Matrix, network::Network,
 };
+
 use rand::seq::SliceRandom;
 use std::{f64::consts::PI, time::Instant};
 
 use plotters::prelude::*;
-
-mod math;
-mod neural_net;
 
 fn main() {
     //Specify Training & Test Data
     let mut train_data: Vec<DataPoint> = xor_dataset();
     let test_data: Vec<DataPoint> = xor_dataset();
 
-    //Specify Layer Sizes
+    //Specify Network
     let layers_sizes: Vec<usize> = vec![2, 10, 1];
-
-    //Specify Activation Function
-    let act_func: fn(f64) -> f64 = tanh;
-    let der_act_func: fn(f64) -> f64 = der_tanh;
+    let activation: Activation = Activation::Tanh;
 
     //Create Neural Network
-    let mut network: Network = Network::new(layers_sizes, act_func, der_act_func);
+    let mut network: Network = Network::new(layers_sizes, activation);
 
     let test_score: f64 = network.test_network(&test_data);
     println!("Starting Score: {}", test_score);

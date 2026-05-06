@@ -517,7 +517,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "neural_network"
+name = "nn_rust"
 version = "0.1.0"
 dependencies = [
  "plotters",

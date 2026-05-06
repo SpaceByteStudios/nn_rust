@@ -1,12 +1,12 @@
-use crate::math::matrix::Matrix;
+use crate::neural_net::activation::Activation;
+use crate::neural_net::matrix::Matrix;
 use rand::{RngExt, rng};
 
 #[derive(Debug)]
 pub struct Layer {
     pub weights: Matrix,
     pub bias: Matrix,
-    pub act_func: fn(f64) -> f64,
-    pub der_act_func: fn(f64) -> f64,
+    pub activation: Activation,
 
     cached_x: Matrix,
     cached_z: Matrix,
@@ -16,12 +16,7 @@ pub struct Layer {
 }
 
 impl Layer {
-    pub fn new(
-        size: usize,
-        prev_size: usize,
-        act_func: fn(f64) -> f64,
-        der_act_func: fn(f64) -> f64,
-    ) -> Self {
+    pub fn new(size: usize, prev_size: usize, activation: Activation) -> Self {
         let weights_data: Vec<f64> = (0..size * prev_size)
             .map(|_| rng().random_range(-1.0..1.0))
             .collect();
@@ -33,8 +28,7 @@ impl Layer {
         Self {
             weights,
             bias,
-            act_func,
-            der_act_func,
+            activation,
 
             cached_x: Matrix::zeros(prev_size, 1),
             cached_z: Matrix::zeros(size, 1),
@@ -54,7 +48,7 @@ impl Layer {
         self.cached_z = out.clone();
 
         for o in &mut out.data {
-            *o = (self.act_func)(*o);
+            *o = self.activation.apply(*o);
         }
 
         out
@@ -67,7 +61,7 @@ impl Layer {
         let mut delta = Matrix::zeros(error_term.rows, 1);
 
         for r in 0..error_term.rows {
-            delta.data[r] = error_term.data[r] * (self.der_act_func)(self.cached_z.data[r]);
+            delta.data[r] = error_term.data[r] * self.activation.der_apply(self.cached_z.data[r]);
         }
 
         self.weights_grad = self

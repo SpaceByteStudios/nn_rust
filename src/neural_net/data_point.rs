@@ -1,4 +1,4 @@
-use crate::math::matrix::Matrix;
+use crate::neural_net::matrix::Matrix;
 
 #[derive(Debug, Clone)]
 pub struct DataPoint {

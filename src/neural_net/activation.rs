@@ -1,40 +1,57 @@
-pub fn linear(x: f64) -> f64 {
-    x
+#[derive(Debug, Clone)]
+pub enum Activation {
+    Linear,
+    ReLu,
+    LeakyReLu,
+    Sigmoid,
+    Tanh,
 }
 
-pub fn der_linear(_: f64) -> f64 {
-    1.0
-}
+impl Activation {
+    pub fn apply(&self, x: f64) -> f64 {
+        match self {
+            Activation::Linear => x,
+            Activation::ReLu => {
+                if x > 0.0 {
+                    x
+                } else {
+                    0.0
+                }
+            }
+            Activation::LeakyReLu => {
+                if x > 0.0 {
+                    x
+                } else {
+                    0.01 * x
+                }
+            }
+            Activation::Sigmoid => 1.0 / (1.0 + (-x).exp()),
+            Activation::Tanh => x.tanh(),
+        }
+    }
 
-pub fn relu(x: f64) -> f64 {
-    if x > 0.0 { x } else { 0.0 }
-}
-
-pub fn der_relu(x: f64) -> f64 {
-    if x > 0.0 { 1.0 } else { 0.0 }
-}
-
-pub fn leaky_relu(x: f64) -> f64 {
-    if x > 0.0 { x } else { 0.1 * x }
-}
-
-pub fn der_leaky_relu(x: f64) -> f64 {
-    if x > 0.0 { 1.0 } else { 0.1 }
-}
-
-pub fn sigmoid(x: f64) -> f64 {
-    1.0 / (1.0 + (-x).exp())
-}
-
-pub fn der_sigmoid(x: f64) -> f64 {
-    let s: f64 = sigmoid(x);
-    s * (1.0 - s)
-}
-
-pub fn tanh(x: f64) -> f64 {
-    x.tanh()
-}
-
-pub fn der_tanh(x: f64) -> f64 {
-    1.0 - (x.tanh()).powi(2)
+    pub fn der_apply(&self, x: f64) -> f64 {
+        match self {
+            Activation::Linear => 1.0,
+            Activation::ReLu => {
+                if x > 0.0 {
+                    1.0
+                } else {
+                    0.0
+                }
+            }
+            Activation::LeakyReLu => {
+                if x > 0.0 {
+                    1.0
+                } else {
+                    0.01
+                }
+            }
+            Activation::Sigmoid => {
+                let s: f64 = self.apply(x);
+                s * (1.0 - s)
+            }
+            Activation::Tanh => 1.0 - (x.tanh()).powi(2),
+        }
+    }
 }

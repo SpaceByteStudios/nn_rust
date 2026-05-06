@@ -1,10 +1,5 @@
-use crate::{
-    math::matrix::Matrix,
-    neural_net::{
-        activation::{der_linear, linear},
-        data_point::DataPoint,
-        layer::{self, Layer},
-    },
+use crate::neural_net::{
+    activation::Activation, data_point::DataPoint, layer::Layer, matrix::Matrix,
 };
 
 use rand::seq::SliceRandom;
@@ -15,11 +10,7 @@ pub struct Network {
 }
 
 impl Network {
-    pub fn new(
-        layers_sizes: Vec<usize>,
-        act_func: fn(f64) -> f64,
-        der_act_func: fn(f64) -> f64,
-    ) -> Self {
+    pub fn new(layers_sizes: Vec<usize>, activation: Activation) -> Self {
         assert!(layers_sizes.len() >= 2);
 
         let mut layers: Vec<Layer> = vec![];
@@ -31,9 +22,9 @@ impl Network {
             let layer: Layer;
 
             if i == layers_sizes.len() - 1 {
-                layer = Layer::new(size, prev_size, linear, der_linear);
+                layer = Layer::new(size, prev_size, Activation::Linear);
             } else {
-                layer = Layer::new(size, prev_size, act_func, der_act_func);
+                layer = Layer::new(size, prev_size, activation.clone());
             }
 
             layers.push(layer);
