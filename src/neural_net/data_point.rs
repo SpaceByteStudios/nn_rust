@@ -1,13 +1,13 @@
-use crate::neural_net::matrix::Matrix;
+use crate::neural_net::matrix::Vector;
 
 #[derive(Debug, Clone)]
 pub struct DataPoint {
-    pub input: Matrix,
-    pub exp_output: Matrix,
+    pub input: Vector,
+    pub exp_output: Vector,
 }
 
 impl DataPoint {
-    pub fn new(input: Matrix, exp_output: Matrix) -> Self {
+    pub fn new(input: Vector, exp_output: Vector) -> Self {
         Self { input, exp_output }
     }
 }

@@ -2,7 +2,10 @@
 #![allow(unused_imports)]
 
 use nn_rust::neural_net::{
-    activation::Activation, data_point::DataPoint, matrix::Matrix, network::Network,
+    activation::Activation,
+    data_point::DataPoint,
+    matrix::{Matrix, Vector},
+    network::Network,
 };
 
 use rand::seq::SliceRandom;
@@ -70,8 +73,8 @@ fn generate_data(amount: i32) -> Vec<DataPoint> {
 
         let out: f64 = a.sin();
 
-        let input: Matrix = Matrix::new(1, 1, vec![a]);
-        let exp_output: Matrix = Matrix::new(1, 1, vec![out]);
+        let input: Vector = Vector::new(vec![a]);
+        let exp_output: Vector = Vector::new(vec![out]);
 
         data.push(DataPoint { input, exp_output });
     }
@@ -80,27 +83,24 @@ fn generate_data(amount: i32) -> Vec<DataPoint> {
 }
 
 fn xor_dataset() -> Vec<DataPoint> {
-    let mut data: Vec<DataPoint> = vec![];
-
-    data.push(DataPoint {
-        input: Matrix::new(2, 1, vec![0.0, 0.0]),
-        exp_output: Matrix::new(1, 1, vec![0.0]),
-    });
-
-    data.push(DataPoint {
-        input: Matrix::new(2, 1, vec![1.0, 0.0]),
-        exp_output: Matrix::new(1, 1, vec![1.0]),
-    });
-
-    data.push(DataPoint {
-        input: Matrix::new(2, 1, vec![0.0, 1.0]),
-        exp_output: Matrix::new(1, 1, vec![1.0]),
-    });
-
-    data.push(DataPoint {
-        input: Matrix::new(2, 1, vec![1.0, 1.0]),
-        exp_output: Matrix::new(1, 1, vec![0.0]),
-    });
+    let data: Vec<DataPoint> = vec![
+        DataPoint {
+            input: Vector::new(vec![0.0, 0.0]),
+            exp_output: Vector::new(vec![0.0]),
+        },
+        DataPoint {
+            input: Vector::new(vec![1.0, 0.0]),
+            exp_output: Vector::new(vec![1.0]),
+        },
+        DataPoint {
+            input: Vector::new(vec![0.0, 1.0]),
+            exp_output: Vector::new(vec![1.0]),
+        },
+        DataPoint {
+            input: Vector::new(vec![1.0, 1.0]),
+            exp_output: Vector::new(vec![0.0]),
+        },
+    ];
 
     data
 }
@@ -140,8 +140,8 @@ fn plot_performance(performance: Vec<f64>) -> Result<(), Box<dyn std::error::Err
 }
 
 fn plot_2d_graph(
-    train_data: &Vec<DataPoint>,
-    predictions: &Vec<DataPoint>,
+    train_data: &[DataPoint],
+    predictions: &[DataPoint],
 ) -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new("graph.png", (800, 800)).into_drawing_area();
     root.fill(&WHITE)?;
@@ -158,13 +158,13 @@ fn plot_2d_graph(
     chart.draw_series(
         train_data
             .iter()
-            .map(|x| Circle::new((x.input.data[0], x.exp_output.data[0]), 5, BLUE.filled())),
+            .map(|x| Circle::new((x.input.get(0), x.exp_output.get(0)), 5, BLUE.filled())),
     )?;
 
     chart.draw_series(
         predictions
             .iter()
-            .map(|x| Circle::new((x.input.data[0], x.exp_output.data[0]), 5, RED.filled())),
+            .map(|x| Circle::new((x.input.get(0), x.exp_output.get(0)), 5, RED.filled())),
     )?;
 
     root.present()?;
