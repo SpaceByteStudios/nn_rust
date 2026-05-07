@@ -69,7 +69,7 @@ impl Network {
         let mut error_term: Vector = Vector::new(data);
 
         for layer in &mut self.layers.iter_mut().rev() {
-            error_term = layer.back_prop_layer(&mut error_term);
+            layer.back_prop_layer(&mut error_term);
         }
     }
 

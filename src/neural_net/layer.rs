@@ -41,42 +41,37 @@ impl Layer {
     pub fn calc_layer(&mut self, input: &Vector) -> Vector {
         assert_eq!(self.weights.size()[1], input.len());
 
-        let mut out: Vector = self.weights.mul_vec(input).add(&self.bias);
+        let mut out: Vector = self.weights.mul_vec(input);
+        out.add_mut(&self.bias);
 
         self.cached_x = input.clone();
         self.cached_z = out.clone();
 
-        for i in 0..out.len() {
-            out.set(i, self.activation.apply(out.get(i)));
-        }
+        self.activation.apply_vec_mut(&mut out);
 
         out
     }
 
-    pub fn back_prop_layer(&mut self, error_term: &mut Vector) -> Vector {
+    pub fn back_prop_layer(&mut self, error_term: &mut Vector) {
         assert_eq!(error_term.len(), self.cached_z.len());
 
-        let mut delta = Vector::zeros(error_term.len());
+        self.activation.der_apply_vec_mut(&mut self.cached_z);
+        error_term.elem_mul_mut(&self.cached_z);
 
-        for i in 0..error_term.len() {
-            delta.set(
-                i,
-                error_term.get(i) * self.activation.der_apply(self.cached_z.get(i)),
-            );
-        }
+        self.bias_grad.add_mut(error_term);
+        self.weights_grad.add_mut(&error_term.outer(&self.cached_x));
 
-        self.weights_grad = self.weights_grad.add(&delta.outer(&self.cached_x));
-        self.bias_grad = self.bias_grad.add(&delta);
-
-        let new_error_term: Vector = self.weights.transpose().mul_vec(&delta);
-        new_error_term
+        *error_term = self.weights.transpose().mul_vec(error_term);
     }
 
     pub fn update_layer(&mut self, data_amount: usize, learn_rate: f64) {
         let rate: f64 = -learn_rate / (data_amount) as f64;
 
-        self.weights = self.weights.add(&self.weights_grad.scale(rate));
-        self.bias = self.bias.add(&self.bias_grad.scale(rate));
+        self.weights_grad.scale_mut(rate);
+        self.weights.add_mut(&self.weights_grad);
+
+        self.bias_grad.scale_mut(rate);
+        self.bias.add_mut(&self.bias_grad);
 
         self.weights_grad = Matrix::zeros(self.weights.size()[0], self.weights.size()[1]);
         self.bias_grad = Vector::zeros(self.bias.len());

@@ -48,6 +48,14 @@ impl Matrix {
         result
     }
 
+    pub fn scale_mut(&mut self, scalar: f64) {
+        for i in 0..self.rows {
+            for j in 0..self.cols {
+                self.set(i, j, self.get(i, j) * scalar);
+            }
+        }
+    }
+
     pub fn transpose(&self) -> Self {
         let mut result = Matrix::zeros(self.cols, self.rows);
 
@@ -58,6 +66,20 @@ impl Matrix {
         }
 
         result
+    }
+
+    pub fn transpose_mut(&mut self) {
+        let mut result = Matrix::zeros(self.cols, self.rows);
+
+        for i in 0..self.rows {
+            for j in 0..self.cols {
+                result.set(j, i, self.get(i, j));
+            }
+        }
+
+        self.rows = result.rows;
+        self.cols = result.cols;
+        self.data = result.data;
     }
 
     pub fn add(&self, other: &Self) -> Self {
@@ -76,6 +98,18 @@ impl Matrix {
         result
     }
 
+    pub fn add_mut(&mut self, other: &Self) {
+        assert_eq!(self.cols, other.cols);
+        assert_eq!(self.rows, other.rows);
+
+        for i in 0..self.rows {
+            for j in 0..self.cols {
+                let sum: f64 = self.get(i, j) + other.get(i, j);
+                self.set(i, j, sum);
+            }
+        }
+    }
+
     pub fn mul(&self, other: &Self) -> Self {
         assert_eq!(self.cols, other.rows);
 
@@ -92,6 +126,26 @@ impl Matrix {
         }
 
         result
+    }
+
+    pub fn mul_mut(&mut self, other: &Self) {
+        assert_eq!(self.cols, other.rows);
+
+        let mut result = Matrix::zeros(self.rows, other.cols);
+
+        for i in 0..self.rows {
+            for j in 0..other.cols {
+                let mut sum = 0.0;
+                for k in 0..self.cols {
+                    sum += self.get(i, k) * other.get(k, j);
+                }
+                result.set(i, j, sum);
+            }
+        }
+
+        self.rows = result.rows;
+        self.cols = result.cols;
+        self.data = result.data;
     }
 
     pub fn mul_vec(&self, other: &Vector) -> Vector {
@@ -146,6 +200,10 @@ impl Vector {
         self.vector.rows
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     pub fn scale(&self, scalar: f64) -> Self {
         let mut result: Vector = Vector::zeros(self.len());
 
@@ -156,8 +214,10 @@ impl Vector {
         result
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
+    pub fn scale_mut(&mut self, scalar: f64) {
+        for i in 0..self.len() {
+            self.set(i, scalar * self.get(i));
+        }
     }
 
     pub fn add(&self, other: &Self) -> Self {
@@ -172,6 +232,14 @@ impl Vector {
         result
     }
 
+    pub fn add_mut(&mut self, other: &Self) {
+        assert_eq!(self.len(), other.len());
+
+        for i in 0..self.len() {
+            self.set(i, self.get(i) + other.get(i));
+        }
+    }
+
     pub fn elem_mul(&self, other: &Self) -> Self {
         assert_eq!(self.len(), other.len());
 
@@ -182,6 +250,14 @@ impl Vector {
         }
 
         result
+    }
+
+    pub fn elem_mul_mut(&mut self, other: &Self) {
+        assert_eq!(self.len(), other.len());
+
+        for i in 0..self.len() {
+            self.set(i, self.get(i) * other.get(i));
+        }
     }
 
     pub fn outer(&self, other: &Self) -> Matrix {

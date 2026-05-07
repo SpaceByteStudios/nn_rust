@@ -1,3 +1,5 @@
+use crate::neural_net::matrix::Vector;
+
 #[derive(Debug, Clone)]
 pub enum Activation {
     Linear,
@@ -52,6 +54,38 @@ impl Activation {
                 s * (1.0 - s)
             }
             Activation::Tanh => 1.0 - (x.tanh()).powi(2),
+        }
+    }
+
+    pub fn apply_vec(&self, v: &Vector) -> Vector {
+        let mut result: Vector = Vector::zeros(v.len());
+
+        for i in 0..v.len() {
+            result.set(i, self.apply(v.get(i)));
+        }
+
+        result
+    }
+
+    pub fn apply_vec_mut(&self, v: &mut Vector) {
+        for i in 0..v.len() {
+            v.set(i, self.apply(v.get(i)));
+        }
+    }
+
+    pub fn der_apply_vec(&self, v: &Vector) -> Vector {
+        let mut result: Vector = Vector::zeros(v.len());
+
+        for i in 0..v.len() {
+            result.set(i, self.der_apply(v.get(i)));
+        }
+
+        result
+    }
+
+    pub fn der_apply_vec_mut(&self, v: &mut Vector) {
+        for i in 0..v.len() {
+            v.set(i, self.der_apply(v.get(i)));
         }
     }
 }
