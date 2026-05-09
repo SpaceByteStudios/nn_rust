@@ -1,25 +1,25 @@
 #![allow(dead_code)]
-#![allow(unused_imports)]
 
 use nn_rust::neural_net::{
     activation::Activation,
     data_point::DataPoint,
-    matrix::{Matrix, Vector},
+    matrix::Vector,
     network::Network,
 };
 
-use rand::seq::SliceRandom;
 use std::{f64::consts::PI, time::Instant};
+use rand::RngExt;
 
-use plotters::prelude::*;
+use plotters::{prelude::*, style::full_palette::{LIGHTBLUE, YELLOW}};
 
 fn main() {
     //Specify Training & Test Data
-    let mut train_data: Vec<DataPoint> = xor_dataset();
-    let test_data: Vec<DataPoint> = xor_dataset();
+    let mut train_data: Vec<DataPoint> = spiral_data(512);
+    let test_data: Vec<DataPoint> = spiral_data(64);
 
     //Specify Network
-    let layers_sizes: Vec<usize> = vec![2, 10, 1];
+    let layers_sizes: Vec<usize> = vec![2, 16, 24, 16, 2];
+    //let layers_sizes: Vec<usize> = vec![2, 16, 16, 2];
     let activation: Activation = Activation::Tanh;
 
     //Create Neural Network
@@ -33,7 +33,7 @@ fn main() {
 
     for _ in 0..25 {
         //Train Neural Network
-        let mut train_score: Vec<f64> = network.train_network(&mut train_data, 50, 1, 0.01);
+        let mut train_score: Vec<f64> = network.train_network(&mut train_data, 100, 4, 0.01);
         performance.append(&mut train_score);
 
         //Test Neural Network
@@ -48,6 +48,7 @@ fn main() {
     //Plot Neural Network Performance
     let _ = plot_performance(performance);
 
+    //Plot Neural Network Graph
     let mut predictions: Vec<DataPoint> = vec![];
 
     for data in &train_data {
@@ -82,25 +83,31 @@ fn generate_data(amount: i32) -> Vec<DataPoint> {
     data
 }
 
-fn xor_dataset() -> Vec<DataPoint> {
-    let data: Vec<DataPoint> = vec![
-        DataPoint {
-            input: Vector::new(vec![0.0, 0.0]),
-            exp_output: Vector::new(vec![0.0]),
-        },
-        DataPoint {
-            input: Vector::new(vec![1.0, 0.0]),
-            exp_output: Vector::new(vec![1.0]),
-        },
-        DataPoint {
-            input: Vector::new(vec![0.0, 1.0]),
-            exp_output: Vector::new(vec![1.0]),
-        },
-        DataPoint {
-            input: Vector::new(vec![1.0, 1.0]),
-            exp_output: Vector::new(vec![0.0]),
-        },
-    ];
+fn spiral_data(amount : i32) -> Vec<DataPoint> {
+    let mut rng = rand::rng();
+    let mut data: Vec<DataPoint> = vec![];
+
+    let noise : f64 = 0.3;
+    let turns : f64 = 3.0;
+
+    for i in 0..amount {
+        let t = i as f64 / amount as f64;
+        let theta = t * turns * 2.0 * PI;
+        
+        let r = theta / turns;
+        let x = r * theta.cos() + rng.random_range(-noise..noise);
+        let y = r * theta.sin() + rng.random_range(-noise..noise);
+
+
+        data.push(DataPoint { input: Vector::new(vec![x, y]), exp_output: Vector::new(vec![1.0, 0.0])});
+
+        let theta2 = theta + PI;
+        let x2 = r * theta2.cos() + rng.random_range(-noise..noise);
+        let y2 = r * theta2.sin() + rng.random_range(-noise..noise);
+
+
+        data.push(DataPoint { input: Vector::new(vec![x2, y2]), exp_output: Vector::new(vec![0.0, 1.0])});
+    }
 
     data
 }
@@ -151,20 +158,20 @@ fn plot_2d_graph(
         .margin(30)
         .x_label_area_size(40)
         .y_label_area_size(40)
-        .build_cartesian_2d(-PI..PI, -1.0..1.0)?;
+        .build_cartesian_2d(-8.0..8.0, -8.0..8.0)?;
 
     chart.configure_mesh().x_desc("x").y_desc("y").draw()?;
 
     chart.draw_series(
         train_data
             .iter()
-            .map(|x| Circle::new((x.input.get(0), x.exp_output.get(0)), 5, BLUE.filled())),
+            .map(|x| Circle::new((x.input.get(0), x.input.get(1)), 5, if x.exp_output.get(0) > x.exp_output.get(1) {BLUE.filled()} else {RED.filled()})),
     )?;
 
     chart.draw_series(
         predictions
             .iter()
-            .map(|x| Circle::new((x.input.get(0), x.exp_output.get(0)), 5, RED.filled())),
+            .map(|x| Circle::new((x.input.get(0), x.input.get(1)), 2, if x.exp_output.get(0) > x.exp_output.get(1) {LIGHTBLUE.filled()} else {YELLOW.filled()})),
     )?;
 
     root.present()?;
