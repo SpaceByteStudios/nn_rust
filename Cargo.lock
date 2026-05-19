@@ -520,6 +520,7 @@ dependencies = [
 name = "nn_rust"
 version = "0.1.0"
 dependencies = [
+ "flate2",
  "plotters",
  "rand",
 ]

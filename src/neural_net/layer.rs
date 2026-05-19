@@ -1,5 +1,5 @@
 use crate::neural_net::matrix::Matrix;
-use crate::neural_net::{activation::Activation, matrix::Vector};
+use crate::neural_net::{functions::Activation, matrix::Vector};
 use rand::{RngExt, rng};
 
 #[derive(Debug)]

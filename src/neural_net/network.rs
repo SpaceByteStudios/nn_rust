@@ -1,16 +1,23 @@
 use crate::neural_net::{
-    activation::Activation, data_point::DataPoint, layer::Layer, matrix::Vector,
+    data_point::DataPoint,
+    functions::{Activation, Loss, OutputActivation},
+    layer::Layer,
+    matrix::Vector,
 };
-
-use rand::seq::SliceRandom;
 
 #[derive(Debug)]
 pub struct Network {
     pub layers: Vec<Layer>,
+    out_activation: OutputActivation,
+    loss_function: Loss,
 }
 
 impl Network {
-    pub fn new(layers_sizes: Vec<usize>, activation: Activation) -> Self {
+    pub fn new(
+        layers_sizes: Vec<usize>,
+        activation: Activation,
+        out_activation: OutputActivation,
+    ) -> Self {
         assert!(layers_sizes.len() >= 2);
 
         let mut layers: Vec<Layer> = vec![];
@@ -28,7 +35,18 @@ impl Network {
             layers.push(layer);
         }
 
-        Self { layers }
+        let loss_function: Loss;
+
+        match out_activation {
+            OutputActivation::Linear => loss_function = Loss::MeanSquaredError,
+            OutputActivation::Softmax => loss_function = Loss::CrossEntropy,
+        }
+
+        Self {
+            layers,
+            out_activation,
+            loss_function,
+        }
     }
 
     pub fn calc_network(&mut self, input: &Vector) -> Vector {
@@ -40,30 +58,22 @@ impl Network {
             result = layer.calc_layer(&result);
         }
 
+        self.out_activation.apply_mut(&mut result);
+
         result
     }
 
-    pub fn calc_cost(&self, prediction: &Vector, expected_out: &Vector) -> f64 {
+    pub fn calc_loss(&self, prediction: &Vector, expected_out: &Vector) -> f64 {
         assert_eq!(prediction.len(), expected_out.len());
 
-        let mut cost: f64 = 0.0;
-
-        for i in 0..prediction.len() {
-            let pre_value: f64 = prediction.get(i);
-            let exp_value: f64 = expected_out.get(i);
-            cost += (pre_value - exp_value).powi(2);
-        }
-
-        cost /= prediction.len() as f64;
-
-        cost
+        self.loss_function.apply(expected_out, prediction)
     }
 
     pub fn back_prop(&mut self, prediction: &Vector, expexted_out: &Vector) {
         let mut data: Vec<f64> = vec![0.0; prediction.len()];
 
-        for (i, d) in data.iter_mut().enumerate() {
-            *d = 2.0 * (prediction.get(i) - expexted_out.get(i));
+        for i in 0..prediction.len() {
+            data[i] = prediction.get(i) - expexted_out.get(i);
         }
 
         let mut error_term: Vector = Vector::new(data);
@@ -75,7 +85,7 @@ impl Network {
 
     pub fn train_network(
         &mut self,
-        train_data: &mut [DataPoint],
+        train_data: &[DataPoint],
         epochs: usize,
         batch_size: usize,
         learn_rate: f64,
@@ -85,10 +95,7 @@ impl Network {
         for _ in 0..epochs {
             let mut e_cost: f64 = 0.0;
 
-            let mut rng = rand::rng();
-            train_data.shuffle(&mut rng);
-
-            let batches = train_data.chunks_exact_mut(batch_size);
+            let batches = train_data.chunks_exact(batch_size);
 
             for batch in batches {
                 for data in batch.iter() {
@@ -96,7 +103,7 @@ impl Network {
                     let prediction: Vector = self.calc_network(&data.input);
 
                     //Calculate cost
-                    let batch_cost: f64 = self.calc_cost(&prediction, &data.exp_output);
+                    let batch_cost: f64 = self.calc_loss(&prediction, &data.exp_output);
                     e_cost += batch_cost;
 
                     //Backwards Propagation
@@ -115,13 +122,13 @@ impl Network {
         cost_history
     }
 
-    pub fn test_network(&mut self, test_data: &Vec<DataPoint>) -> f64 {
+    pub fn test_network(&mut self, test_data: &[DataPoint]) -> f64 {
         let mut cost: f64 = 0.0;
 
         for data in test_data {
             let prediction: Vector = self.calc_network(&data.input);
 
-            cost += self.calc_cost(&prediction, &data.exp_output);
+            cost += self.calc_loss(&prediction, &data.exp_output);
         }
 
         cost / test_data.len() as f64
