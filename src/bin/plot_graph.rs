@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use nn_rust::neural_net::{
     data_point::DataPoint,
     functions::{Activation, OutputActivation},
@@ -23,10 +21,10 @@ fn main() {
     let test_data: Vec<DataPoint> = spiral_data(64);
 
     //Specify Network
-    let layers_sizes: Vec<usize> = vec![2, 16, 24, 16, 2];
+    let layers_sizes: Vec<usize> = vec![2, 16, 16, 16, 2];
     //let layers_sizes: Vec<usize> = vec![2, 16, 16, 2];
-    let activation: Activation = Activation::Tanh;
-    let out_activation: OutputActivation = OutputActivation::Softmax;
+    let activation: Activation = Activation::LeakyReLu;
+    let out_activation: OutputActivation = OutputActivation::Linear;
 
     //Create Neural Network
     let mut network: Network = Network::new(layers_sizes, activation, out_activation);
@@ -42,7 +40,7 @@ fn main() {
         let mut rng = rand::rng();
         train_data.shuffle(&mut rng);
 
-        let mut train_score: Vec<f64> = network.train_network(&mut train_data, 100, 4, 0.01);
+        let mut train_score: Vec<f64> = network.train_network(&mut train_data, 50, 32, 0.01);
         performance.append(&mut train_score);
 
         //Test Neural Network
@@ -70,34 +68,15 @@ fn main() {
         predictions.push(pred_point);
     }
 
-    let _ = plot_2d_graph(&train_data, &predictions);
-}
-
-fn generate_data(amount: i32) -> Vec<DataPoint> {
-    let mut data: Vec<DataPoint> = vec![];
-
-    for _ in 0..amount {
-        let mut a: f64 = rand::random();
-
-        a = (a - 0.5) * PI * 2.0;
-
-        let out: f64 = a.sin();
-
-        let input: Vector = Vector::new(vec![a]);
-        let exp_output: Vector = Vector::new(vec![out]);
-
-        data.push(DataPoint { input, exp_output });
-    }
-
-    data
+    let _ = plot_2d_graph(&train_data, &predictions, 0);
 }
 
 fn spiral_data(amount: i32) -> Vec<DataPoint> {
     let mut rng = rand::rng();
     let mut data: Vec<DataPoint> = vec![];
 
-    let noise: f64 = 0.3;
-    let turns: f64 = 3.0;
+    let noise: f64 = 0.35;
+    let turns: f64 = 2.0;
 
     for i in 0..amount {
         let t = i as f64 / amount as f64;
@@ -126,10 +105,10 @@ fn spiral_data(amount: i32) -> Vec<DataPoint> {
 }
 
 fn plot_performance(performance: Vec<f64>) -> Result<(), Box<dyn std::error::Error>> {
-    let root = BitMapBackend::new("output.png", (800, 800)).into_drawing_area();
+    let root = BitMapBackend::new("graphs/output.png", (800, 800)).into_drawing_area();
     root.fill(&WHITE)?;
 
-    let y_min: f64 = performance.iter().cloned().fold(f64::INFINITY, f64::min);
+    let y_min: f64 = 0.0;
     let y_max: f64 = performance
         .iter()
         .cloned()
@@ -155,15 +134,19 @@ fn plot_performance(performance: Vec<f64>) -> Result<(), Box<dyn std::error::Err
 
     root.present()?;
 
-    println!("Plot saved to output.png");
+    println!("Plot saved to graphs/output.png");
     Ok(())
 }
 
 fn plot_2d_graph(
     train_data: &[DataPoint],
     predictions: &[DataPoint],
+    index: i32,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let root = BitMapBackend::new("graph.png", (800, 800)).into_drawing_area();
+    let mut path: String = String::from("graphs/graph.png");
+    path.insert_str(12, &index.to_string());
+
+    let root = BitMapBackend::new(&path, (800, 800)).into_drawing_area();
     root.fill(&WHITE)?;
 
     let mut chart = ChartBuilder::on(&root)
@@ -201,6 +184,6 @@ fn plot_2d_graph(
 
     root.present()?;
 
-    println!("Plot saved to graph.png");
+    println!("Plot saved to {}", path);
     Ok(())
 }
