@@ -1,9 +1,14 @@
+#![allow(dead_code)]
+
 use crate::neural_net::matrix::Matrix;
 use crate::neural_net::{functions::Activation, matrix::Vector};
 use rand::{RngExt, rng};
 
 #[derive(Debug)]
 pub struct Layer {
+    size: usize,
+    prev_size: usize,
+
     weights: Matrix,
     bias: Vector,
     activation: Activation,
@@ -26,6 +31,8 @@ impl Layer {
         let bias: Vector = Vector::new(bias_data);
 
         Self {
+            size,
+            prev_size,
             weights,
             bias,
             activation,
@@ -39,7 +46,11 @@ impl Layer {
     }
 
     pub fn size(&self) -> usize {
-        self.bias.len()
+        self.size
+    }
+
+    pub fn prev_size(&self) -> usize {
+        self.prev_size
     }
 
     pub fn calc_layer(&mut self, input: &Vector) -> Vector {
@@ -56,6 +67,7 @@ impl Layer {
         out
     }
 
+    //Change back propagated error term and calculate gradients
     pub fn back_prop_layer(&mut self, error_term: &mut Vector) {
         assert_eq!(error_term.len(), self.cached_z.len());
 
@@ -68,6 +80,7 @@ impl Layer {
         *error_term = self.weights.transpose().mul_vec(error_term);
     }
 
+    //Update the weights and biases based on gradients with learn rate
     pub fn update_layer(&mut self, data_amount: usize, learn_rate: f64) {
         let rate: f64 = -learn_rate / (data_amount) as f64;
 

@@ -37,6 +37,7 @@ impl Network {
 
         let loss_function: Loss;
 
+        //Use correct Loss Function based on last Layer Activation Function
         match out_activation {
             OutputActivation::Linear => loss_function = Loss::MeanSquaredError,
             OutputActivation::Softmax => loss_function = Loss::CrossEntropy,
@@ -50,7 +51,7 @@ impl Network {
     }
 
     pub fn calc_network(&mut self, input: &Vector) -> Vector {
-        assert_eq!(self.layers[0].size(), input.len());
+        assert_eq!(input.len(), self.layers[0].prev_size());
 
         let mut result: Vector = input.clone();
 
@@ -78,6 +79,7 @@ impl Network {
 
         let mut error_term: Vector = Vector::new(data);
 
+        //Backpropagating through the layers backwards
         for layer in &mut self.layers.iter_mut().rev() {
             layer.back_prop_layer(&mut error_term);
         }

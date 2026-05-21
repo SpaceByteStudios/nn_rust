@@ -5,9 +5,10 @@ use nn_rust::neural_net::{
     network::Network,
 };
 
-use std::time::Instant;
+use nn_rust::plotting;
 
 use rand::seq::SliceRandom;
+use std::time::Instant;
 
 fn main() {
     //Specify Training & Test Data
@@ -15,12 +16,20 @@ fn main() {
     let test_data: Vec<DataPoint> = xor_dataset();
 
     //Specify Network
-    let layers_sizes: Vec<usize> = vec![2, 10, 1];
-    let activation: Activation = Activation::Tanh;
-    let out_activation: OutputActivation = OutputActivation::Softmax;
+    let layers_sizes: Vec<usize> = vec![2, 8, 1];
+    let activation: Activation = Activation::ReLu;
+    let out_activation: OutputActivation = OutputActivation::Linear;
 
     //Create Neural Network
     let mut network: Network = Network::new(layers_sizes, activation, out_activation);
+
+    let iterations: usize = 10;
+    let epochs: usize = 25;
+    println!(
+        "Neural Network will train for {} epochs",
+        iterations * epochs
+    );
+    println!();
 
     let test_score: f64 = network.test_network(&test_data);
     println!("Starting Score: {}", test_score);
@@ -28,12 +37,12 @@ fn main() {
     let start: Instant = Instant::now();
     let mut performance: Vec<f64> = vec![];
 
-    for _ in 0..25 {
+    for _ in 0..iterations {
         //Train Neural Network
         let mut rng = rand::rng();
         train_data.shuffle(&mut rng);
 
-        let mut train_score: Vec<f64> = network.train_network(&mut train_data, 100, 4, 0.01);
+        let mut train_score: Vec<f64> = network.train_network(&mut train_data, epochs, 4, 0.05);
         performance.append(&mut train_score);
 
         //Test Neural Network
@@ -44,6 +53,9 @@ fn main() {
     let seconds: f64 = start.elapsed().as_secs_f64();
     println!("Training took {:.3} seconds", seconds);
     println!();
+
+    let _ = plotting::plot_performance(performance, String::from("graphs/xor_performance.png"));
+    println!("Performance plot saved to graphs/xor_performance.png");
 }
 
 fn xor_dataset() -> Vec<DataPoint> {
