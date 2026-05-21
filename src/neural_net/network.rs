@@ -7,7 +7,7 @@ use crate::neural_net::{
 
 #[derive(Debug)]
 pub struct Network {
-    pub layers: Vec<Layer>,
+    layers: Vec<Layer>,
     out_activation: OutputActivation,
     loss_function: Loss,
 }
@@ -50,7 +50,7 @@ impl Network {
     }
 
     pub fn calc_network(&mut self, input: &Vector) -> Vector {
-        assert_eq!(self.layers[0].weights.size()[1], input.len());
+        assert_eq!(self.layers[0].size(), input.len());
 
         let mut result: Vector = input.clone();
 
@@ -63,13 +63,13 @@ impl Network {
         result
     }
 
-    pub fn calc_loss(&self, prediction: &Vector, expected_out: &Vector) -> f64 {
+    fn calc_loss(&self, prediction: &Vector, expected_out: &Vector) -> f64 {
         assert_eq!(prediction.len(), expected_out.len());
 
         self.loss_function.apply(expected_out, prediction)
     }
 
-    pub fn back_prop(&mut self, prediction: &Vector, expexted_out: &Vector) {
+    fn back_prop(&mut self, prediction: &Vector, expexted_out: &Vector) {
         let mut data: Vec<f64> = vec![0.0; prediction.len()];
 
         for i in 0..prediction.len() {

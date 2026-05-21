@@ -6,7 +6,7 @@ use nn_rust::neural_net::{
 };
 
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::time::Instant;
 
 use rand::seq::SliceRandom;
@@ -37,6 +37,9 @@ fn main() -> std::io::Result<()> {
     let test_score: f64 = network.test_network(&test_data);
     println!("Starting Score: {}", test_score);
 
+    let accuraccy = mnist_accuracy(&test_data, &mut network);
+    println!("Neural Network is correct {:.2}%", accuraccy * 100.0);
+
     let start: Instant = Instant::now();
     let mut performance: Vec<f64> = vec![];
 
@@ -51,41 +54,26 @@ fn main() -> std::io::Result<()> {
         //Test Neural Network
         let test_score: f64 = network.test_network(&test_data);
         println!("Test Score: {}", test_score);
+
+        let accuraccy = mnist_accuracy(&test_data, &mut network);
+        println!("Neural Network is correct {:.2}%", accuraccy * 100.0);
+
+        if accuraccy > 0.95 {
+            println!("Accuraccy high enough!");
+            break;
+        }
     }
 
     let seconds: f64 = start.elapsed().as_secs_f64();
-    println!("Training took {:.3} seconds", seconds);
+    println!("Training and Testing took {:.3} seconds", seconds);
     println!();
 
-    let mut correct_rate: f64 = 0.0;
+    println!("Program finished. Press Enter to exit...");
 
-    for data in &test_data {
-        let p = network.calc_network(&data.input);
-        let y = &data.exp_output;
+    let _ = std::io::stdout().flush();
 
-        let mut max_p_index = 0;
-        let mut max_y_index = 0;
-
-        for i in 1..p.len() {
-            if p.get(i) > p.get(max_p_index) {
-                max_p_index = i;
-            }
-        }
-
-        for i in 1..y.len() {
-            if y.get(i) > y.get(max_y_index) {
-                max_y_index = i;
-            }
-        }
-
-        if max_p_index == max_y_index {
-            correct_rate += 1.0;
-        }
-    }
-
-    correct_rate /= test_data.len() as f64;
-
-    println!("Neural Network is correct {:.2}%", correct_rate * 100.0);
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
 
     Ok(())
 }
@@ -154,6 +142,38 @@ fn mnist_dataset(image_path: &str, label_path: &str) -> std::io::Result<Vec<Data
     Ok(data)
 }
 
+fn mnist_accuracy(test_data: &Vec<DataPoint>, network: &mut Network) -> f64 {
+    let mut correct_rate: f64 = 0.0;
+
+    for data in test_data {
+        let p = network.calc_network(&data.input);
+        let y = &data.exp_output;
+
+        let mut max_p_index = 0;
+        let mut max_y_index = 0;
+
+        for i in 1..p.len() {
+            if p.get(i) > p.get(max_p_index) {
+                max_p_index = i;
+            }
+        }
+
+        for i in 1..y.len() {
+            if y.get(i) > y.get(max_y_index) {
+                max_y_index = i;
+            }
+        }
+
+        if max_p_index == max_y_index {
+            correct_rate += 1.0;
+        }
+    }
+
+    correct_rate /= test_data.len() as f64;
+    correct_rate
+}
+
+//Debug purposes
 fn plot_mnist(image: &[u8], path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let size = 28;
 

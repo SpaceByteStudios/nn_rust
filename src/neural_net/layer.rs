@@ -4,9 +4,9 @@ use rand::{RngExt, rng};
 
 #[derive(Debug)]
 pub struct Layer {
-    pub weights: Matrix,
-    pub bias: Vector,
-    pub activation: Activation,
+    weights: Matrix,
+    bias: Vector,
+    activation: Activation,
 
     cached_x: Vector,
     cached_z: Vector,
@@ -36,6 +36,10 @@ impl Layer {
             weights_grad: Matrix::zeros(size, prev_size),
             bias_grad: Vector::zeros(size),
         }
+    }
+
+    pub fn size(&self) -> usize {
+        self.bias.len()
     }
 
     pub fn calc_layer(&mut self, input: &Vector) -> Vector {
