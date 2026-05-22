@@ -8,6 +8,7 @@ use nn_rust::neural_net::{
 use nn_rust::plotting;
 
 use rand::RngExt;
+use std::io::Write;
 use std::{f64::consts::PI, time::Instant};
 
 use rand::seq::SliceRandom;
@@ -79,6 +80,13 @@ fn main() {
         String::from("graphs/graph_plot.png"),
     );
     println!("Graph plot saved to graphs/graph_plot.png");
+    println!();
+
+    println!("Program finished. Press Enter to exit...");
+    let _ = std::io::stdout().flush();
+
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
 }
 
 fn graph_dataset(amount: i32) -> Vec<DataPoint> {

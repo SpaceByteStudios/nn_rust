@@ -10,6 +10,8 @@ use nn_rust::plotting;
 use rand::RngExt;
 use std::{f64::consts::PI, time::Instant};
 
+use std::io::Write;
+
 use rand::seq::SliceRandom;
 
 fn main() {
@@ -79,6 +81,13 @@ fn main() {
         String::from("graphs/spiral_plot.png"),
     );
     println!("Classification plot saved to graphs/spiral_plot.png");
+    println!();
+
+    println!("Program finished. Press Enter to exit...");
+    let _ = std::io::stdout().flush();
+
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
 }
 
 fn spiral_dataset(amount: i32) -> Vec<DataPoint> {

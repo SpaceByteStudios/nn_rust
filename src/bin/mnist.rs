@@ -5,6 +5,8 @@ use nn_rust::neural_net::{
     network::Network,
 };
 
+use nn_rust::plotting;
+
 use std::fs::File;
 use std::io::{Read, Write};
 use std::time::Instant;
@@ -12,7 +14,6 @@ use std::time::Instant;
 use rand::seq::SliceRandom;
 
 use flate2::read::GzDecoder;
-use plotters::prelude::*;
 
 fn main() -> std::io::Result<()> {
     //Specify Training & Test Data
@@ -34,6 +35,14 @@ fn main() -> std::io::Result<()> {
     //Create Neural Network
     let mut network: Network = Network::new(layers_sizes, activation, out_activation);
 
+    let iterations: usize = 1;
+    let epochs: usize = 1;
+    println!(
+        "Neural Network will train for {} epochs",
+        iterations * epochs
+    );
+    println!();
+
     let test_score: f64 = network.test_network(&test_data);
     println!("Starting Score: {}", test_score);
 
@@ -43,12 +52,12 @@ fn main() -> std::io::Result<()> {
     let start: Instant = Instant::now();
     let mut performance: Vec<f64> = vec![];
 
-    for _ in 0..25 {
+    for _ in 0..iterations {
         //Train Neural Network
         let mut rng = rand::rng();
         train_data.shuffle(&mut rng);
 
-        let mut train_score: Vec<f64> = network.train_network(&train_data, 1, 64, 0.05);
+        let mut train_score: Vec<f64> = network.train_network(&train_data, epochs, 64, 0.05);
         performance.append(&mut train_score);
 
         //Test Neural Network
@@ -68,8 +77,31 @@ fn main() -> std::io::Result<()> {
     println!("Training and Testing took {:.3} seconds", seconds);
     println!();
 
-    println!("Program finished. Press Enter to exit...");
+    //Plot Neural Network Performance
+    let _ = plotting::plot_performance(performance, String::from("graphs/mnist_performance.png"));
+    println!("Performance plot saved to graphs/mnist_performance.png");
 
+    //Plot Neural Network MNIST
+    let mut rng = rand::rng();
+    train_data.shuffle(&mut rng);
+
+    let data_point: &DataPoint = &train_data[0];
+
+    let out = network.calc_network(&data_point.input);
+    let prediction: DataPoint = DataPoint {
+        input: data_point.input.clone(),
+        exp_output: out,
+    };
+
+    let _ = plotting::plot_mnist(
+        &data_point,
+        &prediction,
+        String::from("graphs/mnist_datapoint.png"),
+    );
+    println!("MNIST Datapoint saved to graphs/mnist_datapoint.png");
+    println!();
+
+    println!("Program finished. Press Enter to exit...");
     let _ = std::io::stdout().flush();
 
     let mut input = String::new();
@@ -131,14 +163,6 @@ fn mnist_dataset(image_path: &str, label_path: &str) -> std::io::Result<Vec<Data
         data.push(image_data_point);
     }
 
-    //let image = images[0..image_size].to_vec();
-    //let label = labels[0];
-
-    //plot_mnist(&image, "mnist.png").unwrap();
-    //println!("Saved mnist.png");
-
-    //println!("This number should be a: {}", label);
-
     Ok(data)
 }
 
@@ -171,35 +195,4 @@ fn mnist_accuracy(test_data: &Vec<DataPoint>, network: &mut Network) -> f64 {
 
     correct_rate /= test_data.len() as f64;
     correct_rate
-}
-
-//Debug purposes
-fn plot_mnist(image: &[u8], path: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let size = 28;
-
-    let root = BitMapBackend::new(path, (280, 280)).into_drawing_area();
-    root.fill(&WHITE)?;
-
-    let mut chart = ChartBuilder::on(&root)
-        .margin(10)
-        .build_cartesian_2d(0..size, 0..size)?;
-
-    chart.configure_mesh().disable_mesh().draw()?;
-
-    for y in 0..size {
-        for x in 0..size {
-            let pixel = image[(y * size + x) as usize];
-            let color = RGBColor(pixel, pixel, pixel);
-
-            let flipped_y = size - y - 1;
-
-            chart.draw_series(std::iter::once(Rectangle::new(
-                [(x, flipped_y), (x + 1, flipped_y + 1)],
-                color.filled(),
-            )))?;
-        }
-    }
-
-    root.present()?;
-    Ok(())
 }

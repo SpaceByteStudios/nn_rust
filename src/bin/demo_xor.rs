@@ -8,6 +8,7 @@ use nn_rust::neural_net::{
 use nn_rust::plotting;
 
 use rand::seq::SliceRandom;
+use std::io::Write;
 use std::time::Instant;
 
 fn main() {
@@ -56,6 +57,13 @@ fn main() {
 
     let _ = plotting::plot_performance(performance, String::from("graphs/xor_performance.png"));
     println!("Performance plot saved to graphs/xor_performance.png");
+    println!();
+
+    println!("Program finished. Press Enter to exit...");
+    let _ = std::io::stdout().flush();
+
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
 }
 
 fn xor_dataset() -> Vec<DataPoint> {

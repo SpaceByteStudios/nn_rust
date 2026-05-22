@@ -172,3 +172,39 @@ pub fn plot_2d_classification(
 
     Ok(())
 }
+
+pub fn plot_mnist(
+    data_point: &DataPoint,
+    prediction: &DataPoint,
+    path: String,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let size = 28;
+
+    let root = BitMapBackend::new(&path, (280, 280)).into_drawing_area();
+    root.fill(&WHITE)?;
+
+    let mut chart = ChartBuilder::on(&root)
+        .margin(10)
+        .build_cartesian_2d(0..size, 0..size)?;
+
+    chart.configure_mesh().disable_mesh().draw()?;
+
+    for y in 0..size {
+        for x in 0..size {
+            let value = data_point.input.get((y * size + x) as usize);
+            let pixel = (value * 255.0) as u8;
+
+            let color = RGBColor(pixel, pixel, pixel);
+
+            let flipped_y = size - y - 1;
+
+            chart.draw_series(std::iter::once(Rectangle::new(
+                [(x, flipped_y), (x + 1, flipped_y + 1)],
+                color.filled(),
+            )))?;
+        }
+    }
+
+    root.present()?;
+    Ok(())
+}
