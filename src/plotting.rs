@@ -180,10 +180,14 @@ pub fn plot_mnist(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let size = 28;
 
-    let root = BitMapBackend::new(&path, (280, 280)).into_drawing_area();
+    let root = BitMapBackend::new(&path, (800, 400)).into_drawing_area();
     root.fill(&WHITE)?;
 
-    let mut chart = ChartBuilder::on(&root)
+    let (left, right) = root.split_horizontally(400);
+
+    let img_area = left.margin(40, 40, 40, 40);
+
+    let mut chart = ChartBuilder::on(&img_area)
         .margin(10)
         .build_cartesian_2d(0..size, 0..size)?;
 
@@ -203,6 +207,46 @@ pub fn plot_mnist(
                 color.filled(),
             )))?;
         }
+    }
+
+    let y: &DataPoint = data_point;
+    let mut max_y_index = 0;
+
+    for i in 1..y.exp_output.len() {
+        if y.exp_output.get(i) > y.exp_output.get(max_y_index) {
+            max_y_index = i;
+        }
+    }
+
+    let style =
+        FontDesc::new(FontFamily::SansSerif, 20.0, FontStyle::Normal).into_text_style(&left);
+
+    left.draw_text(&format!("Label: {}", max_y_index), &style, (160, 360))?;
+
+    let bar_width: i32 = 30;
+    let spacing: i32 = 10;
+    let max_height: i32 = 350;
+
+    for i in 0..10 {
+        let p = prediction.exp_output.get(i);
+        let pct = (p * 100.0) as i32;
+
+        let x0 = (i as i32) * (bar_width + spacing);
+        let x1 = x0 + bar_width;
+
+        let bar_height = pct * (max_height - 50) / 100;
+        let y0 = max_height - bar_height;
+        let y1 = max_height;
+
+        // bar
+        right.draw(&Rectangle::new([(x0, y0), (x1, y1)], RED.filled()))?;
+
+        // label
+        right.draw(&Text::new(
+            format!("{i} : {pct}%"),
+            (x0 - 2, max_height + 10),
+            ("sans-serif", 12),
+        ))?;
     }
 
     root.present()?;
