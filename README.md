@@ -37,6 +37,10 @@ cargo run --bin demo_spiral
 cargo run --bin demo_mnist
 ```
 
+Videos of the Neural Network learning regression and classification:
+![LearningGraph](graphs/LearningGraph.gif)
+![LearningSpiral](graphs/LearningSpiral.gif)
+
 ## Usage as a Library
 
 Add this to your `Cargo.toml`:
@@ -70,3 +74,13 @@ fn main() {
   let output: Vector = network.calc_network(&input);
   println!("{:?}", output);
 }
+```
+
+## Motivation
+
+This project was built to deeply understand how neural networks work under the hood, including forward propagation, backpropagation, and optimization without relying on high-level ML frameworks.
+<p>
+I really recommend giving this playlist from 3Blue1Brown a watch if you also want to learn how Neural Networks work:
+
+https://youtu.be/aircAruvnKk?si=a9To1nigVJxqqfbY
+</p>
