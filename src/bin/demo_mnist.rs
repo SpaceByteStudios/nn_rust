@@ -5,8 +5,6 @@ use nn_rust::neural_net::{
     network::Network,
 };
 
-use nn_rust::plotting;
-
 use std::fs::File;
 use std::io;
 use std::io::{Read, Write};
