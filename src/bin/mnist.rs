@@ -8,6 +8,7 @@ use nn_rust::neural_net::{
 use nn_rust::plotting;
 
 use std::fs::File;
+use std::io;
 use std::io::{Read, Write};
 use std::time::Instant;
 
@@ -35,8 +36,24 @@ fn main() -> std::io::Result<()> {
     //Create Neural Network
     let mut network: Network = Network::new(layers_sizes, activation, out_activation);
 
+    print!("For how many epochs should the Neural Network train (default 1): ");
+    io::stdout().flush().unwrap();
+    let default: i32 = 1;
+
+    let mut input = String::new();
+
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read input");
+
+    let number: i32 = if input.trim().is_empty() {
+        default
+    } else {
+        input.trim().parse().expect("Please enter a valid integer")
+    };
+
     let iterations: usize = 1;
-    let epochs: usize = 1;
+    let epochs: usize = number as usize;
     println!(
         "Neural Network will train for {} epochs",
         iterations * epochs
@@ -76,36 +93,6 @@ fn main() -> std::io::Result<()> {
     let seconds: f64 = start.elapsed().as_secs_f64();
     println!("Training and Testing took {:.3} seconds", seconds);
     println!();
-
-    //Plot Neural Network Performance
-    let _ = plotting::plot_performance(performance, String::from("graphs/mnist_performance.png"));
-    println!("Performance plot saved to graphs/mnist_performance.png");
-
-    //Plot Neural Network MNIST
-    let mut rng = rand::rng();
-    train_data.shuffle(&mut rng);
-
-    let data_point: &DataPoint = &train_data[0];
-
-    let out = network.calc_network(&data_point.input);
-    let prediction: DataPoint = DataPoint {
-        input: data_point.input.clone(),
-        exp_output: out,
-    };
-
-    let _ = plotting::plot_mnist(
-        &data_point,
-        &prediction,
-        String::from("graphs/mnist_datapoint.png"),
-    );
-    println!("MNIST Datapoint saved to graphs/mnist_datapoint.png");
-    println!();
-
-    println!("Program finished. Press Enter to exit...");
-    let _ = std::io::stdout().flush();
-
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input).unwrap();
 
     Ok(())
 }
