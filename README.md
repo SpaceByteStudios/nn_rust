@@ -38,8 +38,11 @@ cargo run --bin demo_mnist
 ```
 
 Videos of the Neural Network learning regression and classification:
-![LearningGraph](graphs/LearningGraph.gif)
-![LearningSpiral](graphs/LearningSpiral.gif)
+
+<p>
+  <img src="graphs/LearningGraph.gif" width="480" />
+  <img src="graphs/LearningSpiral.gif" width="480" />
+</p>
 
 ## Usage as a Library
 
@@ -47,7 +50,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-nn_rust = { path = "../nn_rust" }
+nn_rust = { path = "../NeuralNetworkRust" }
 ```
 
 Example code:
