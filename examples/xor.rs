@@ -5,7 +5,7 @@ use nn_rust::neural_net::{
     network::Network,
 };
 
-use nn_rust::plotting;
+mod plotting;
 
 use rand::seq::SliceRandom;
 use std::io::Write;
@@ -24,7 +24,7 @@ fn main() {
     //Create Neural Network
     let mut network: Network = Network::new(layers_sizes, activation, out_activation);
 
-    let iterations: usize = 10;
+    let iterations: usize = 25;
     let epochs: usize = 25;
     println!(
         "Neural Network will train for {} epochs",

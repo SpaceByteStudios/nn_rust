@@ -1,4 +1,6 @@
-use crate::neural_net::data_point::DataPoint;
+#![allow(dead_code)]
+
+use nn_rust::neural_net::data_point::DataPoint;
 
 use plotters::prelude::*;
 use plotters::style::full_palette::LIGHTBLUE;

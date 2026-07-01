@@ -5,7 +5,7 @@ use nn_rust::neural_net::{
     network::Network,
 };
 
-use nn_rust::plotting;
+mod plotting;
 
 use rand::RngExt;
 use std::io::Write;
