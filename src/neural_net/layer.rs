@@ -2,9 +2,11 @@
 
 use crate::neural_net::matrix::Matrix;
 use crate::neural_net::{functions::Activation, matrix::Vector};
+
+use rand::prelude::*;
 use rand::{RngExt, rng};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Layer {
     size: usize,
     prev_size: usize,
@@ -92,5 +94,30 @@ impl Layer {
 
         self.weights_grad = Matrix::zeros(self.weights.size()[0], self.weights.size()[1]);
         self.bias_grad = Vector::zeros(self.bias.len());
+    }
+
+    pub fn mutate(&mut self, rate: f64, strength: f64) {
+        let mut rng: ThreadRng = rand::rng();
+        let [rows, cols] = self.weights.size();
+
+        for r in 0..rows {
+            for c in 0..cols {
+                if rng.random::<f64>() < rate {
+                    let value = self.weights.get(r, c);
+                    let delta = rng.random_range(-strength..strength);
+                    self.weights.set(r, c, value + delta);
+                }
+            }
+        }
+
+        let rows = self.bias.len();
+
+        for r in 0..rows {
+            if rng.random::<f64>() < rate {
+                let value = self.bias.get(r);
+                let delta = rng.random_range(-strength..strength);
+                self.bias.set(r, value + delta);
+            }
+        }
     }
 }

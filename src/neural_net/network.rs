@@ -5,7 +5,7 @@ use crate::neural_net::{
     matrix::Vector,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Network {
     layers: Vec<Layer>,
     out_activation: OutputActivation,
@@ -134,5 +134,11 @@ impl Network {
         }
 
         cost / test_data.len() as f64
+    }
+
+    pub fn mutate(&mut self, rate: f64, strength: f64) {
+        for layer in &mut self.layers {
+            layer.mutate(rate, strength);
+        }
     }
 }
