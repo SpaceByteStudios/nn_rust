@@ -50,7 +50,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-nn_rust = { path = "../NeuralNetworkRust" }
+nn_rust = "0.1.0"
 ```
 
 Example code:
