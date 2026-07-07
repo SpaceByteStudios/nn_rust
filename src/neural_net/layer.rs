@@ -47,6 +47,18 @@ impl Layer {
         }
     }
 
+    pub fn get_weights(&self) -> &Matrix {
+        &self.weights
+    }
+
+    pub fn get_bias(&self) -> &Vector {
+        &self.bias
+    }
+
+    pub fn get_cached_values(&self) -> Vec<&Vector> {
+        vec![&self.cached_x, &self.cached_z]
+    }
+
     pub fn size(&self) -> usize {
         self.size
     }

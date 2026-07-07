@@ -2,7 +2,7 @@ use crate::neural_net::{
     data_point::DataPoint,
     functions::{Activation, Loss, OutputActivation},
     layer::Layer,
-    matrix::Vector,
+    matrix::{Matrix, Vector},
 };
 
 #[derive(Debug, Clone)]
@@ -48,6 +48,30 @@ impl Network {
             out_activation,
             loss_function,
         }
+    }
+
+    pub fn get_weights(&self) -> Vec<&Matrix> {
+        let mut weights: Vec<&Matrix> = vec![];
+
+        for layer in &self.layers {
+            weights.push(layer.get_weights());
+        }
+
+        weights
+    }
+
+    pub fn get_bias(&self) -> Vec<&Vector> {
+        let mut bias: Vec<&Vector> = vec![];
+
+        for layer in &self.layers {
+            bias.push(layer.get_bias());
+        }
+
+        bias
+    }
+
+    pub fn get_layers(&self) -> &[Layer] {
+        &self.layers
     }
 
     pub fn calc_network(&mut self, input: &Vector) -> Vector {
