@@ -44,8 +44,8 @@ cargo run --bin demo_mnist
 Videos of the Neural Network learning regression and classification:
 
 <p>
-  <img src="graphs/LearningGraph.gif" width="320" />
-  <img src="graphs/LearningSpiral.gif" width="320" />
+  <img src="graphs/LearningGraph.gif" width="360" />
+  <img src="graphs/LearningSpiral.gif" width="360" />
 </p>
 
 ## Usage as a Library
