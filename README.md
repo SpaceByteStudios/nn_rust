@@ -3,6 +3,10 @@
 A simple neural network library written in Rust, designed for learning, experimentation, and building small AI systems from scratch. 
 Includes training utilities, activation functions, and example projects.
 
+## Projects
+Projects made with this Library:
+- 🐤 [Flappy Bird AI](https://github.com/SpaceByteStudios/FlappyBirdAI)
+
 ## Features
 
 - Fully implemented feedforward neural networks
@@ -40,8 +44,8 @@ cargo run --bin demo_mnist
 Videos of the Neural Network learning regression and classification:
 
 <p>
-  <img src="graphs/LearningGraph.gif" width="480" />
-  <img src="graphs/LearningSpiral.gif" width="480" />
+  <img src="graphs/LearningGraph.gif" width="320" />
+  <img src="graphs/LearningSpiral.gif" width="320" />
 </p>
 
 ## Usage as a Library
@@ -50,7 +54,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-nn_rust = "0.1.1"
+nn_rust = "0.1.2"
 ```
 
 Example code:
